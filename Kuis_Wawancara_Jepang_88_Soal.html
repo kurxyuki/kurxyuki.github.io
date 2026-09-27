@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Interaktif Mensetsu Jepang (88 Pertanyaan)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-jp { font-family: 'Noto Sans JP', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-red-500 text-white flex items-center justify-center shadow-md shadow-rose-200">
+          <i class="ph-bold ph-graduation-cap text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-900 tracking-tight text-base sm:text-lg">Quiz Mensetsu Jepang</h1>
+          <p class="text-xs text-slate-500">88 Pertanyaan Wawancara Kerja & Magang</p>
+        </div>
+      </div>
+      <div id="headerScoreBadge" class="hidden text-xs font-semibold bg-rose-50 text-rose-700 px-3 py-1.5 rounded-full border border-rose-200">
+        Skor: <span id="currentScoreTop" class="font-bold text-rose-600">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full flex flex-col justify-center">
+
+    <!-- VIEW 1: Quiz Configuration / Setup -->
+    <section id="setupView" class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200">
+      <div class="max-w-xl mx-auto text-center mb-8">
+        <span class="inline-flex items-center gap-1.5 bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3">
+          <i class="ph-bold ph-trophy"></i> Uji Kemampuan Wawancara
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">Pilih Konfigurasi Quiz</h2>
+        <p class="text-sm text-slate-500">Sesuaikan metode pengurutan soal, jumlah pertanyaan, dan tipe pertanyaan yang ingin kamu uji.</p>
+      </div>
+
+      <div class="max-w-xl mx-auto space-y-6">
+        <!-- Urut / Acak Selection -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Metode Urutan Soal</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" onclick="setOrderMethod('sequential')" id="btnOrderSeq" class="p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20">
+              <div class="flex items-center justify-between mb-1">
+                <span class="flex items-center gap-1.5"><i class="ph-bold ph-sort-ascending text-lg"></i> Urut (Sequential)</span>
+              </div>
+              <p class="text-xs text-slate-500 font-normal">Mulai dari pertanyaan nomor 1 dan seterusnya.</p>
+            </button>
+            <button type="button" onclick="setOrderMethod('random')" id="btnOrderRand" class="p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700">
+              <div class="flex items-center justify-between mb-1">
+                <span class="flex items-center gap-1.5"><i class="ph-bold ph-shuffle text-lg"></i> Acak (Random)</span>
+              </div>
+              <p class="text-xs text-slate-500 font-normal">Soal dan opsi jawaban diacak setiap sesi.</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Question Count -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Jumlah Pertanyaan</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button type="button" onclick="setQuestionCount(10)" class="btnCount py-2.5 rounded-xl border font-bold text-sm text-slate-700 border-slate-200 hover:bg-slate-50 transition" data-count="10">10 Soal</button>
+            <button type="button" onclick="setQuestionCount(20)" class="btnCount py-2.5 rounded-xl border font-bold text-sm bg-rose-600 text-white border-rose-600 shadow-sm transition" data-count="20">20 Soal</button>
+            <button type="button" onclick="setQuestionCount(50)" class="btnCount py-2.5 rounded-xl border font-bold text-sm text-slate-700 border-slate-200 hover:bg-slate-50 transition" data-count="50">50 Soal</button>
+            <button type="button" onclick="setQuestionCount(88)" class="btnCount py-2.5 rounded-xl border font-bold text-sm text-slate-700 border-slate-200 hover:bg-slate-50 transition" data-count="88">Semua (88)</button>
+          </div>
+        </div>
+
+        <!-- Quiz Type Mode -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Tipe Soal</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button type="button" onclick="setQuizType('jp_to_id')" id="btnTypeJpId" class="p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20">
+              <span class="font-bold block mb-0.5">Jepang ➔ Arti Indonesia</span>
+              <span class="text-xs text-slate-500 font-normal">Tebak arti kalimat tanya wawancara.</span>
+            </button>
+            <button type="button" onclick="setQuizType('id_to_jp')" id="btnTypeIdJp" class="p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700">
+              <span class="font-bold block mb-0.5">Indonesia ➔ Bahasa Jepang</span>
+              <span class="text-xs text-slate-500 font-normal">Pilih kalimat kanji & romaji yang tepat.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <button onclick="startQuiz()" class="w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-base shadow-lg shadow-rose-600/30 transition flex items-center justify-center gap-2 mt-4">
+          <i class="ph-bold ph-play text-xl"></i> Mulai Kerjakan Quiz
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 2: Active Quiz Card -->
+    <section id="quizView" class="hidden bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200">
+      
+      <!-- Quiz Progress Bar & Counters -->
+      <div class="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+        <span id="progressIndicator">Soal 1 dari 20</span>
+        <span id="scoreTrackerText">Skor: 0</span>
+      </div>
+      <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-6">
+        <div id="progressBar" class="bg-rose-600 h-full w-0 transition-all duration-300"></div>
+      </div>
+
+      <!-- Question Box -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 sm:p-8 text-center relative mb-6 shadow-sm">
+        <span id="questionCategoryTag" class="text-[11px] font-bold uppercase tracking-wider text-rose-600 bg-rose-100/60 px-2.5 py-1 rounded-full mb-3 inline-block">
+          Pertanyaan Wawancara #1
+        </span>
+
+        <!-- Audio pronunciation button (if Japanese is present) -->
+        <button id="btnAudioSpeak" onclick="speakCurrentQuestion()" title="Dengarkan Suara" class="absolute right-4 top-4 w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition shadow-sm">
+          <i class="ph-bold ph-speaker-high text-lg"></i>
+        </button>
+
+        <h3 id="questionTextPrimary" class="font-jp text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
+          どこから来ましたか
+        </h3>
+        <p id="questionTextSecondary" class="text-sm font-medium text-slate-500 mt-2">
+          Doko kara kimashita ka
+        </p>
+      </div>
+
+      <!-- Options (A, B, C, D) -->
+      <div id="optionsContainer" class="grid grid-cols-1 gap-3 mb-6">
+        <!-- Generated by JS -->
+      </div>
+
+      <!-- Feedback Banner (shown after answer selection) -->
+      <div id="feedbackBanner" class="hidden p-4 rounded-2xl mb-4 text-sm font-medium border flex items-center justify-between">
+        <div class="flex items-center gap-2" id="feedbackText">
+          <!-- Text feedback -->
+        </div>
+      </div>
+
+      <!-- Next Button -->
+      <div class="flex justify-end">
+        <button id="btnNextQuestion" onclick="goToNextQuestion()" disabled class="px-6 py-3 rounded-xl bg-slate-200 text-slate-400 font-bold text-sm transition flex items-center gap-2 cursor-not-allowed">
+          <span>Lanjut Pertanyaan</span> <i class="ph-bold ph-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: Results Summary -->
+    <section id="resultView" class="hidden bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200 text-center max-w-xl mx-auto w-full">
+      <div class="w-20 h-20 rounded-3xl bg-rose-50 text-rose-600 mx-auto flex items-center justify-center text-4xl shadow-inner mb-4">
+        <i id="resultIcon" class="ph-bold ph-medal"></i>
+      </div>
+
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-1">Hasil Quiz Mensetsu</h2>
+      <p id="resultSubtitle" class="text-sm text-slate-500 mb-6">Berikut ringkasan pencapaian latihan Anda.</p>
+
+      <div class="grid grid-cols-3 gap-3 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+        <div>
+          <p class="text-xs text-slate-400 font-semibold uppercase">Total Soal</p>
+          <p id="resTotal" class="text-xl font-extrabold text-slate-800">20</p>
+        </div>
+        <div>
+          <p class="text-xs text-emerald-500 font-semibold uppercase">Benar</p>
+          <p id="resCorrect" class="text-xl font-extrabold text-emerald-600">18</p>
+        </div>
+        <div>
+          <p class="text-xs text-rose-500 font-semibold uppercase">Salah</p>
+          <p id="resWrong" class="text-xl font-extrabold text-rose-600">2</p>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-rose-50/70 border border-rose-100 mb-6">
+        <p class="text-xs text-rose-800 font-bold uppercase tracking-wider mb-1">Nilai Akhir</p>
+        <p id="resScoreGrade" class="text-4xl font-black text-rose-600">90%</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button onclick="restartQuiz()" class="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+          <i class="ph-bold ph-arrow-clockwise"></i> Coba Lagi
+        </button>
+        <button onclick="backToSetup()" class="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition">
+          Ganti Pengaturan
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    Latihan Soal Wawancara Kerja & Magang Jepang (Mensetsu) &bull; 88 Soal
+  </footer>
+
+  <script>
+    // 88 Pertanyaan Mensetsu Lengkap
+    const allQuestions = [
+      { id: 1, ja: "どこから来ましたか", ro: "Doko kara kimashita ka", idn: "Berasal dari mana?" },
+      { id: 2, ja: "どんな仕事を、どのぐらいしていましたか", ro: "Donna shigoto o, dono gurai shiteimashita ka", idn: "Pekerjaan seperti apa yang pernah Anda lakukan, dan berapa lama?" },
+      { id: 3, ja: "家族は何人ですか", ro: "Kazoku wa nannin desu ka", idn: "Berapa jumlah anggota keluarga Anda?" },
+      { id: 4, ja: "兄弟は何人ですか", ro: "Kyoudai wa nannin desu ka", idn: "Berapa jumlah saudara kandung Anda?" },
+      { id: 5, ja: "趣味は何ですか", ro: "Shumi wa nan desu ka", idn: "Apa hobi Anda?" },
+      { id: 6, ja: "夢、希望を教えてください", ro: "Yume, kibou o oshiete kudasai", idn: "Tolong ceritakan impian dan harapan Anda." },
+      { id: 7, ja: "休みの日は何をしていますか", ro: "Yasumi no hi wa nani o shiteimasu ka", idn: "Apa yang Anda lakukan saat hari libur?" },
+      { id: 8, ja: "得意なスポーツは何ですか", ro: "Tokui na supootsu wa nan desu ka", idn: "Olahraga apa yang Anda kuasai?" },
+      { id: 9, ja: "好きな食べ物は何ですか", ro: "Suki na tabemono wa nan desu ka", idn: "Apa makanan favorit Anda?" },
+      { id: 10, ja: "嫌いな食べ物は何ですか", ro: "Kirai na tabemono wa nan desu ka", idn: "Apa makanan yang tidak Anda sukai?" },
+      { id: 11, ja: "日本語を、どのぐらい勉強しましたか", ro: "Nihongo o, dono gurai benkyou shimashita ka", idn: "Berapa lama Anda telah belajar bahasa Jepang?" },
+      { id: 12, ja: "結婚していますか? 子供はいますか", ro: "Kekkon shiteimasu ka? Kodomo wa imasu ka", idn: "Apakah sudah menikah? Apakah mempunyai anak?" },
+      { id: 13, ja: "料理は、できますか", ro: "Ryouri wa, dekimasu ka", idn: "Apakah Anda bisa memasak?" },
+      { id: 14, ja: "得意な料理は何ですか", ro: "Tokui na ryouri wa nan desu ka", idn: "Masakan apa yang paling Anda kuasai?" },
+      { id: 15, ja: "日本で行ってみたいところはどこですか", ro: "Nihon de itte mitai tokoro wa doko desu ka", idn: "Tempat mana di Jepang yang ingin Anda kunjungi?" },
+      { id: 16, ja: "日本語は、誰に習いましたか", ro: "Nihongo wa, dare ni naraimashita ka", idn: "Kepada siapa Anda belajar bahasa Jepang?" },
+      { id: 17, ja: "勉強は、何時から何時までですか", ro: "Benkyou wa, nanji kara nanji made desu ka", idn: "Belajarnya dari jam berapa sampai jam berapa?" },
+      { id: 18, ja: "1週間で、何日日本語を勉強しましたか", ro: "Isshuukan de, nannichi nihongo o benkyou shimashita ka", idn: "Dalam satu minggu, berapa hari Anda belajar bahasa Jepang?" },
+      { id: 19, ja: "簡単な漢字を、読むことができますか", ro: "Kantan na kanji o, yomu koto ga dekimasu ka", idn: "Apakah Anda bisa membaca kanji sederhana?" },
+      { id: 20, ja: "授業が終わったら何をしますか", ro: "Jugyou ga owattara nani o shimasu ka", idn: "Setelah pelajaran selesai, apa yang Anda lakukan?" },
+      { id: 21, ja: "日本の歌を、知っていますか", ro: "Nihon no uta o, shitteimasu ka", idn: "Apakah Anda tahu lagu-lagu Jepang?" },
+      { id: 22, ja: "日本語の勉強は、どうですか", ro: "Nihongo no benkyou wa, dou desu ka", idn: "Bagaimana proses belajar bahasa Jepang menurut Anda?" },
+      { id: 23, ja: "親戚や、兄弟が日本で働いていますか", ro: "Shinseki ya, kyoudai ga nihon de hataraiteimasu ka", idn: "Apakah ada kerabat atau saudara yang bekerja di Jepang?" },
+      { id: 24, ja: "恋人がいますか", ro: "Koibito ga imasu ka", idn: "Apakah Anda punya pacar?" },
+      { id: 25, ja: "大きなけがや、病気をしたことがありますか", ro: "Ookina kega ya, byouki o shita koto ga arimasu ka", idn: "Apakah pernah mengalami cedera parah atau sakit berat?" },
+      { id: 26, ja: "日本で、どんな仕事をしますか", ro: "Nihon de, donna shigoto o shimasu ka", idn: "Di Jepang nanti, pekerjaan apa yang akan Anda lakukan?" },
+      { id: 27, ja: "運転免許証を持っていますか", ro: "Unten menkyoshou o motteimasu ka", idn: "Apakah Anda memiliki Surat Izin Mengemudi (SIM)?" },
+      { id: 28, ja: "学歴を教えてください", ro: "Gakureki o oshiete kudasai", idn: "Tolong jelaskan riwayat pendidikan terakhir Anda." },
+      { id: 29, ja: "職歴を教えてください", ro: "Shokureki o oshiete kudasai", idn: "Tolong jelaskan pengalaman kerja Anda." },
+      { id: 30, ja: "インドネシアの良いところは何ですか", ro: "Indoneshia no yoi tokoro wa nan desu ka", idn: "Apa hal yang baik / kelebihan dari Indonesia?" },
+      { id: 31, ja: "インドネシアの悪いところは何ですか", ro: "Indoneshia no warui tokoro wa nan desu ka", idn: "Apa hal yang kurang baik / kelemahan dari Indonesia?" },
+      { id: 32, ja: "自分の長所、短所を言ってください", ro: "Jibun no chousho, tansho o itte kudasai", idn: "Tolong sebutkan kelebihan dan kekurangan diri Anda." },
+      { id: 33, ja: "煙草を吸いますか? 1日何本吸いますか", ro: "Tabako o suimasu ka? Ichinichi nanbon suimasu ka", idn: "Apakah Anda merokok? Berapa batang sehari?" },
+      { id: 34, ja: "断食について、簡単に教えてください", ro: "Danjiki ni tsuite, kantan ni oshiete kudasai", idn: "Tolong jelaskan secara singkat mengenai puasa." },
+      { id: 35, ja: "病気にならないように何かしていますか", ro: "Byouki ni naranai you ni nanika shiteimasu ka", idn: "Apa yang Anda lakukan agar tidak mudah jatuh sakit?" },
+      { id: 36, ja: "子供のころ、どんな遊びをしますか", ro: "Kodomo no koro, donna asobi o shimasu ka", idn: "Saat masa kanak-kanak, permainan apa yang sering dimainkan?" },
+      { id: 37, ja: "身長、体重、足サイズ、服サイズを教えてください", ro: "Shinchou, taijuu, ashi saizu, fuku saizu o oshiete kudasai", idn: "Sebutkan tinggi, berat badan, ukuran sepatu, dan ukuran baju Anda." },
+      { id: 38, ja: "今、1番ほしいものは何ですか", ro: "Ima, ichiban hoshii mono wa nan desu ka", idn: "Saat ini, apa yang paling Anda inginkan?" },
+      { id: 39, ja: "両親の仕事を教えてください", ro: "Ryoushin no shigoto o oshiete kudasai", idn: "Tolong sebutkan pekerjaan orang tua Anda." },
+      { id: 40, ja: "今日は、何月何日何曜日ですか", ro: "Kyou wa, nangatsu nannichi nanyoubi desu ka", idn: "Hari ini tanggal berapa, bulan berapa, dan hari apa?" },
+      { id: 41, ja: "毎朝、何時に起きますか", ro: "Maiasa, nanji ni okimasu ka", idn: "Setiap pagi Anda bangun jam berapa?" },
+      { id: 42, ja: "今朝、何を食べましたか", ro: "Kesa, nani o tabemashita ka", idn: "Pagi tadi Anda sarapan apa?" },
+      { id: 43, ja: "何か、楽器が弾けますか", ro: "Nanika, gakki ga hikemasu ka", idn: "Apakah Anda bisa memainkan alat musik tertentu?" },
+      { id: 44, ja: "生年月日を教えてください", ro: "Seinengappi o oshiete kudasai", idn: "Tolong sebutkan tanggal lahir Anda." },
+      { id: 45, ja: "寝るのは何時ぐらいですか", ro: "Neru no wa nanji gurai desu ka", idn: "Kira-kira tidur jam berapa?" },
+      { id: 46, ja: "テレビは1日、何時間ぐらい見ますか", ro: "Terebi wa ichinichi, nanjikan gurai mimasu ka", idn: "Berapa jam sehari Anda menonton televisi?" },
+      { id: 47, ja: "泳ぐことができますか", ro: "Oyogu koto ga dekimasu ka", idn: "Apakah Anda bisa berenang?" },
+      { id: 48, ja: "インドネシアには、どんな季節がありますか", ro: "Indoneshia ni wa, donna kisetsu ga arimasu ka", idn: "Di Indonesia ada musim apa saja?" },
+      { id: 49, ja: "日本はどんな事が便利だと思いますか", ro: "Nihon wa donna koto ga benri da to omoimasu ka", idn: "Hal apa di Jepang yang menurut Anda sangat praktis/mudah?" },
+      { id: 50, ja: "日本の料理を何か知っていますか", ro: "Nihon no ryouri o nanika shitteimasu ka", idn: "Apakah Anda mengetahui beberapa makanan Jepang?" },
+      { id: 51, ja: "あなたの先生はどんな人ですか", ro: "Anata no sensei wa donna hito desu ka", idn: "Seperti apa sosok guru Anda?" },
+      { id: 52, ja: "あなたの住んでいた町は、どんなところですか", ro: "Anata no sundeita machi wa, donna tokoro desu ka", idn: "Kota tempat tinggal Anda seperti apa suasananya?" },
+      { id: 53, ja: "いつもどこで、買い物をしますか", ro: "Itsumo doko de, kaimono o shimasu ka", idn: "Di mana Anda biasanya berbelanja?" },
+      { id: 54, ja: "今までで、1番高い買い物は何でしたか", ro: "Imamade de, ichiban takai kaimono wa nan deshita ka", idn: "Barang belanjaan termahal apa yang pernah Anda beli hingga kini?" },
+      { id: 55, ja: "日本の季節を4つ言ってください", ro: "Nihon no kisetsu o yottsu itte kudasai", idn: "Sebutkan 4 musim yang ada di Jepang." },
+      { id: 56, ja: "どんな人がすきですか", ro: "Donna hito ga suki desu ka", idn: "Tipe orang seperti apa yang Anda sukai?" },
+      { id: 57, ja: "あなたの尊敬している人は誰ですか", ro: "Anata no sonkei shiteiru hito wa dare desu ka", idn: "Siapa sosok orang yang paling Anda hormati/kagumi?" },
+      { id: 58, ja: "悲しかった思い出は何ですか", ro: "Kanashikatta omoide wa nan desu ka", idn: "Kenangan menyedihkan apa yang pernah Anda alami?" },
+      { id: 59, ja: "好きな動物は何ですか", ro: "Suki na doubutsu wa nan desu ka", idn: "Apa hewan kesukaan Anda?" },
+      { id: 60, ja: "約束についてどう思いますか", ro: "Yakusoku ni tsuite dou omoimasu ka", idn: "Bagaimana pandangan Anda tentang menepati janji?" },
+      { id: 61, ja: "ストレス解消法は何ですか", ro: "Sutoresu kaishouhou wa nan desu ka", idn: "Bagaimana cara Anda meredakan / mengatasi stres?" },
+      { id: 62, ja: "「地震」について、知っていることを話してください", ro: "\"Jishin\" ni tsuite, shitteiru koto o hanashite kudasai", idn: "Ceritakan apa yang Anda ketahui tentang bencana gempa bumi." },
+      { id: 63, ja: "日本の生活で気を付けなければならないことは何ですか", ro: "Nihon no seikatsu de ki o tsukenakereba naranai koto wa nan desu ka", idn: "Hal apa yang harus sangat diperhatikan dalam kehidupan di Jepang?" },
+      { id: 64, ja: "給料はどのぐらいほしいですか", ro: "Kyuuryou wa dono gurai hoshii desu ka", idn: "Berapa ekspektasi gaji yang Anda harapkan?" },
+      { id: 65, ja: "毎月の仕送りはいくら位するつもりですか", ro: "Maitsuki no shiokuri wa ikura gurai suru tsumori desu ka", idn: "Berapa kiriman uang bulanan untuk keluarga yang Anda rencanakan?" },
+      { id: 66, ja: "3年間で、貯金はどのくらいしたいですか", ro: "Sannengan de, chokin wa dono kurai shitai desu ka", idn: "Selama 3 tahun, berapa banyak tabungan yang ingin Anda kumpulkan?" },
+      { id: 67, ja: "日本で断食をしますか", ro: "Nihon de danjiki o shimasu ka", idn: "Apakah Anda akan tetap berpuasa saat berada di Jepang?" },
+      { id: 68, ja: "仕事中、お祈りしないでください。大丈夫ですか", ro: "Shigotochuu, oinori shinaide kudasai. Daijoubu desu ka", idn: "Saat jam kerja tidak boleh beribadah/shalat. Apakah Anda bersedia/bisa?" },
+      { id: 69, ja: "朝は何時に起きますか", ro: "Asa wa nanji ni okimasu ka", idn: "Di pagi hari, Anda bangun pukul berapa?" },
+      { id: 70, ja: "危ないときは、どうしますか", ro: "Abunai toki wa, dou shimasu ka", idn: "Apa yang Anda lakukan ketika berada dalam situasi berbahaya?" },
+      { id: 71, ja: "具合が悪いとき、どういいますか", ro: "Guai ga warui toki, dou iimasu ka", idn: "Ketika merasa tidak enak badan/sakit, bagaimana Anda menyampaikannya?" },
+      { id: 72, ja: "日本で働くとき、一番大切なことは何ですか", ro: "Nihon de hataraku toki, ichiban taisetsu na koto wa nan desu ka", idn: "Hal terpenting apa yang harus dijaga saat bekerja di Jepang?" },
+      { id: 73, ja: "なぜこの仕事を選びますか", ro: "Naze kono shigoto o erabimasu ka", idn: "Mengapa Anda memilih bidang pekerjaan ini?" },
+      { id: 74, ja: "日本で3年間、何を成し遂げたいですか", ro: "Nihon de sannengan, nani o nashitogetai desu ka", idn: "Selama 3 tahun di Jepang, target apa yang ingin Anda raih/selesaikan?" },
+      { id: 75, ja: "家族は日本行きを応援していますか", ro: "Kazoku wa nihon-iki o ouen shiteimasu ka", idn: "Apakah keluarga mendukung rencana keberangkatan Anda ke Jepang?" },
+      { id: 76, ja: "今まで一番長く続けたことがあったら教えてください", ro: "Imamade ichiban nagaku tsuzuketa koto ga attara oshiete kudasai", idn: "Sebutkan hal atau kebiasaan yang paling lama Anda tekuni sejauh ini." },
+      { id: 77, ja: "先生や上司に注意されたとき、どう思いましたか?その時どうしましたか", ro: "Sensei ya joushi ni chuui sareta toki, dou omoimashita ka? Sono toki dou shimashita ka", idn: "Saat ditegur oleh guru atau atasan, apa perasaan dan tindakan Anda?" },
+      { id: 78, ja: "危険な作業を見かけたらどうしますか", ro: "Kiken na sagyou o mikaketara dou shimasu ka", idn: "Apa yang Anda lakukan jika melihat ada proses kerja yang berbahaya?" },
+      { id: 79, ja: "決められた安全ルールを守ることについてどう思いますか", ro: "Kimerareta anzen ruuru o mamoru koto ni tsuite dou omoimasu ka", idn: "Bagaimana pendapat Anda tentang kewajiban mematuhi aturan keselamatan?" },
+      { id: 80, ja: "ヘルメットや保護具が暑くても着けますか", ro: "Herumetto ya hogogu ga atsukutemo tsukemasu ka", idn: "Meskipun helm dan APD terasa panas, apakah Anda akan tetap memakainya?" },
+      { id: 81, ja: "重いものを持つ仕事の経験はありますか", ro: "Omoi mono o motsu shigoto no keiken wa arimasu ka", idn: "Apakah Anda memiliki pengalaman bekerja mengangkat beban berat?" },
+      { id: 82, ja: "体力には自信がありますか", ro: "Tairyoku ni wa jishin ga arimasu ka", idn: "Apakah Anda percaya diri dengan stamina dan kekuatan fisik Anda?" },
+      { id: 83, ja: "日本語の勉強期間は?", ro: "Nihongo no benkyou kikan wa?", idn: "Berapa lama periode waktu belajar bahasa Jepang Anda?" },
+      { id: 84, ja: "わからないときはどうしますか", ro: "Wakaranai toki wa dou shimasu ka", idn: "Apa yang Anda lakukan jika ada hal yang tidak Anda pahami?" },
+      { id: 85, ja: "集団生活で一番大切なことは何ですか", ro: "Shuudan seikatsu de ichiban taisetsu na koto wa nan desu ka", idn: "Apa hal yang paling utama dalam menjalani kehidupan bersama / asrama?" },
+      { id: 86, ja: "集団生活について何か不安なことがありますか", ro: "Shuudan seikatsu ni tsuite nanika fuan na koto ga arimasu ka", idn: "Apakah Anda memiliki kekhawatiran terkait tinggal bersama orang lain di asrama?" },
+      { id: 87, ja: "掃除とか片付けに得意ですか", ro: "Souji toka katazuke ni tokui desu ka", idn: "Apakah Anda terbiasa dan cakap dalam bersih-bersih serta merapikan barang?" },
+      { id: 88, ja: "この仕事に何をやるか知っていますか", ro: "Kono shigoto ni nani o yaru ka shitteimasu ka", idn: "Apakah Anda mengetahui tugas apa saja yang akan dikerjakan di posisi ini?" }
+    ];
+
+    // Quiz Configuration State
+    let quizConfig = {
+      order: 'sequential', // 'sequential' or 'random'
+      count: 20,
+      type: 'jp_to_id'      // 'jp_to_id' or 'id_to_jp'
+    };
+
+    let activeQuestions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let hasAnswered = false;
+
+    // Setting handlers
+    function setOrderMethod(method) {
+      quizConfig.order = method;
+      const bSeq = document.getElementById('btnOrderSeq');
+      const bRand = document.getElementById('btnOrderRand');
+      if (method === 'sequential') {
+        bSeq.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20";
+        bRand.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700";
+      } else {
+        bRand.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20";
+        bSeq.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700";
+      }
+    }
+
+    function setQuestionCount(count) {
+      quizConfig.count = count;
+      document.querySelectorAll('.btnCount').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-count')) === count) {
+          btn.className = "btnCount py-2.5 rounded-xl border font-bold text-sm bg-rose-600 text-white border-rose-600 shadow-sm transition";
+        } else {
+          btn.className = "btnCount py-2.5 rounded-xl border font-bold text-sm text-slate-700 border-slate-200 hover:bg-slate-50 transition";
+        }
+      });
+    }
+
+    function setQuizType(type) {
+      quizConfig.type = type;
+      const b1 = document.getElementById('btnTypeJpId');
+      const b2 = document.getElementById('btnTypeIdJp');
+      if (type === 'jp_to_id') {
+        b1.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20";
+        b2.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700";
+      } else {
+        b2.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-rose-500 bg-rose-50/50 text-rose-700 ring-2 ring-rose-500/20";
+        b1.className = "p-3.5 rounded-2xl border-2 text-left font-semibold text-sm transition border-slate-200 hover:border-slate-300 text-slate-700";
+      }
+    }
+
+    // Start Quiz
+    function startQuiz() {
+      let pool = [...allQuestions];
+      if (quizConfig.order === 'random') {
+        // Shuffle pool
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+      }
+
+      activeQuestions = pool.slice(0, quizConfig.count);
+      currentQIndex = 0;
+      score = 0;
+
+      document.getElementById('setupView').classList.add('hidden');
+      document.getElementById('resultView').classList.add('hidden');
+      document.getElementById('quizView').classList.remove('hidden');
+      document.getElementById('headerScoreBadge').classList.remove('hidden');
+
+      loadQuestion();
+    }
+
+    // Load question UI
+    function loadQuestion() {
+      hasAnswered = false;
+      const current = activeQuestions[currentQIndex];
+      const total = activeQuestions.length;
+
+      // Update counters & progress
+      document.getElementById('progressIndicator').textContent = `Soal ${currentQIndex + 1} dari ${total}`;
+      document.getElementById('scoreTrackerText').textContent = `Skor: ${score}`;
+      document.getElementById('currentScoreTop').textContent = score;
+      document.getElementById('progressBar').style.width = `${((currentQIndex) / total) * 100}%`;
+
+      // Reset feedback and Next button
+      const feedback = document.getElementById('feedbackBanner');
+      feedback.className = "hidden p-4 rounded-2xl mb-4 text-sm font-medium border";
+      feedback.innerHTML = "";
+
+      const btnNext = document.getElementById('btnNextQuestion');
+      btnNext.disabled = true;
+      btnNext.className = "px-6 py-3 rounded-xl bg-slate-200 text-slate-400 font-bold text-sm transition flex items-center gap-2 cursor-not-allowed";
+
+      const tag = document.getElementById('questionCategoryTag');
+      tag.textContent = `Pertanyaan Mensetsu #${current.id}`;
+
+      // Build options (1 correct + 3 random distractors)
+      const options = generateOptions(current);
+
+      if (quizConfig.type === 'jp_to_id') {
+        document.getElementById('questionTextPrimary').textContent = current.ja;
+        document.getElementById('questionTextSecondary').textContent = current.ro;
+        document.getElementById('btnAudioSpeak').classList.remove('hidden');
+      } else {
+        document.getElementById('questionTextPrimary').textContent = current.idn;
+        document.getElementById('questionTextSecondary').textContent = "Pilihlah terjemahan kalimat bahasa Jepang yang tepat:";
+        document.getElementById('btnAudioSpeak').classList.add('hidden');
+      }
+
+      // Render options
+      const optContainer = document.getElementById('optionsContainer');
+      optContainer.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = "optBtn w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition flex items-start gap-3 bg-white";
+        
+        let labelContent = '';
+        if (quizConfig.type === 'jp_to_id') {
+          labelContent = `<span class="font-medium text-slate-800 text-sm sm:text-base">${opt.idn}</span>`;
+        } else {
+          labelContent = `
+            <div>
+              <span class="font-jp font-bold text-slate-900 block text-base">${opt.ja}</span>
+              <span class="text-xs text-slate-500 font-medium block mt-0.5">${opt.ro}</span>
+            </div>
+          `;
+        }
+
+        btn.innerHTML = `
+          <span class="w-7 h-7 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 mt-0.5">${letters[idx]}</span>
+          <div class="flex-1">${labelContent}</div>
+        `;
+
+        btn.onclick = () => selectAnswer(opt, current, btn);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function generateOptions(correctItem) {
+      const distractors = allQuestions
+        .filter(q => q.id !== correctItem.id)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+
+      const opts = [correctItem, ...distractors];
+      return opts.sort(() => 0.5 - Math.random());
+    }
+
+    // Answer Selection
+    function selectAnswer(chosen, correct, clickedBtn) {
+      if (hasAnswered) return;
+      hasAnswered = true;
+
+      const allButtons = document.querySelectorAll('.optBtn');
+      const isCorrect = chosen.id === correct.id;
+
+      if (isCorrect) {
+        score++;
+        document.getElementById('scoreTrackerText').textContent = `Skor: ${score}`;
+        document.getElementById('currentScoreTop').textContent = score;
+        clickedBtn.classList.remove('border-slate-200', 'bg-white', 'hover:border-slate-300');
+        clickedBtn.classList.add('border-emerald-500', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+        showFeedback(true, "Jawaban Benar! Kerja bagus!");
+      } else {
+        clickedBtn.classList.remove('border-slate-200', 'bg-white', 'hover:border-slate-300');
+        clickedBtn.classList.add('border-rose-500', 'bg-rose-50/70', 'ring-2', 'ring-rose-500/20');
+
+        // Highlight correct button
+        allButtons.forEach(btn => {
+          if (
+            (quizConfig.type === 'jp_to_id' && btn.innerText.includes(correct.idn)) ||
+            (quizConfig.type === 'id_to_jp' && btn.innerText.includes(correct.ja))
+          ) {
+            btn.classList.remove('border-slate-200', 'bg-white');
+            btn.classList.add('border-emerald-500', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-500/20');
+          }
+        });
+
+        const correctText = quizConfig.type === 'jp_to_id' 
+          ? `Jawaban yang benar: "${correct.idn}"` 
+          : `Jawaban yang benar: "${correct.ja}" (${correct.ro})`;
+        showFeedback(false, correctText);
+      }
+
+      // Enable Next button
+      const btnNext = document.getElementById('btnNextQuestion');
+      btnNext.disabled = false;
+      btnNext.className = "px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md shadow-rose-200 transition flex items-center gap-2 cursor-pointer";
+
+      // If last question, adjust label
+      if (currentQIndex === activeQuestions.length - 1) {
+        btnNext.innerHTML = `<span>Lihat Hasil</span> <i class="ph-bold ph-trophy"></i>`;
+      }
+    }
+
+    function showFeedback(isSuccess, message) {
+      const banner = document.getElementById('feedbackBanner');
+      banner.classList.remove('hidden');
+      if (isSuccess) {
+        banner.className = "p-4 rounded-2xl mb-4 text-sm font-medium border bg-emerald-50 text-emerald-800 border-emerald-200 flex items-center gap-2";
+        banner.innerHTML = `<i class="ph-bold ph-check-circle text-xl text-emerald-600"></i> <span>${message}</span>`;
+      } else {
+        banner.className = "p-4 rounded-2xl mb-4 text-sm font-medium border bg-rose-50 text-rose-800 border-rose-200 flex items-center gap-2";
+        banner.innerHTML = `<i class="ph-bold ph-x-circle text-xl text-rose-600"></i> <span>${message}</span>`;
+      }
+    }
+
+    function goToNextQuestion() {
+      if (currentQIndex < activeQuestions.length - 1) {
+        currentQIndex++;
+        loadQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      document.getElementById('quizView').classList.add('hidden');
+      document.getElementById('resultView').classList.remove('hidden');
+
+      const total = activeQuestions.length;
+      const wrong = total - score;
+      const percent = Math.round((score / total) * 100);
+
+      document.getElementById('resTotal').textContent = total;
+      document.getElementById('resCorrect').textContent = score;
+      document.getElementById('resWrong').textContent = wrong;
+      document.getElementById('resScoreGrade').textContent = `${percent}%`;
+
+      const icon = document.getElementById('resultIcon');
+      const sub = document.getElementById('resultSubtitle');
+
+      if (percent >= 80) {
+        icon.className = "ph-bold ph-confetti text-emerald-600";
+        sub.textContent = "Luar biasa! Pemahaman pertanyaan mensetsu kamu sangat matang!";
+      } else if (percent >= 60) {
+        icon.className = "ph-bold ph-thumbs-up text-amber-500";
+        sub.textContent = "Bagus! Kamu sudah memahami sebagian besar soal, tingkatkan lagi latihannya!";
+      } else {
+        icon.className = "ph-bold ph-book-open text-rose-600";
+        sub.textContent = "Perlu latihan lebih giat. Ulangi mode urut untuk menghafal pola pertanyaannya.";
+      }
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+
+    function backToSetup() {
+      document.getElementById('quizView').classList.add('hidden');
+      document.getElementById('resultView').classList.add('hidden');
+      document.getElementById('setupView').classList.remove('hidden');
+      document.getElementById('headerScoreBadge').classList.add('hidden');
+    }
+
+    // Audio text to speech for Japanese
+    function speakCurrentQuestion() {
+      const current = activeQuestions[currentQIndex];
+      if (!current || !('speechSynthesis' in window)) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(current.ja);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.85;
+
+      const voices = window.speechSynthesis.getVoices();
+      const jpVoice = voices.find(v => v.lang.startsWith('ja'));
+      if (jpVoice) utterance.voice = jpVoice;
+
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
